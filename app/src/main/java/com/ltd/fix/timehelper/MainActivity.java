@@ -1,6 +1,8 @@
 package com.ltd.fix.timehelper;
 
+import android.app.DialogFragment;
 import android.app.FragmentManager;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -8,14 +10,26 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
+import android.widget.Toast;
 
 import com.ltd.fix.timehelper.Adapter.TabAdapter;
+import com.ltd.fix.timehelper.Dialog.AddTaskDialogFragment;
+import com.ltd.fix.timehelper.Fragments.DoneTaskFragment;
 import com.ltd.fix.timehelper.Fragments.SplashFragment;
+import com.ltd.fix.timehelper.Fragments.currentTaskFragment;
+import com.ltd.fix.timehelper.Models.ModelTask;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+        implements AddTaskDialogFragment.AddTaskListener {
 
     FragmentManager fragmentManager;
     PreferenceHelper preferenceHelper;
+
+    TabAdapter tabAdapter;
+
+    currentTaskFragment currentTaskFragment;
+    DoneTaskFragment doneTaskFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,9 +78,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void setUI(){
+    private void setUI() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        if(toolbar != null){
+        if (toolbar != null) {
             toolbar.setTitleTextColor(getResources().getColor(R.color.white));
             setSupportActionBar(toolbar);
         }
@@ -76,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.addTab(tabLayout.newTab().setText(R.string.done));
 
         final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
-        TabAdapter tabAdapter = new TabAdapter(fragmentManager, 2);
+        tabAdapter = new TabAdapter(fragmentManager, 2);
 
         viewPager.setAdapter(tabAdapter);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
@@ -98,5 +112,26 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        currentTaskFragment = (currentTaskFragment) tabAdapter.getItem(TabAdapter.CURRENT_TASK_POSITION);
+        doneTaskFragment = (DoneTaskFragment) tabAdapter.getItem(TabAdapter.DONE_TASK_POSITION);
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DialogFragment addTask = new AddTaskDialogFragment();
+                addTask.show(fragmentManager, "Add Task");
+            }
+        });
+    }
+
+    @Override
+    public void onTaskAdded(ModelTask newTask) {
+        currentTaskFragment.addTask(newTask);
+    }
+
+    @Override
+    public void onTaskAddCancel() {
+        Toast.makeText(this, "Отмена события", Toast.LENGTH_SHORT).show();
     }
 }

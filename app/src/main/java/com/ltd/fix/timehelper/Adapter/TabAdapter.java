@@ -13,19 +13,27 @@ import com.ltd.fix.timehelper.Fragments.currentTaskFragment;
 public class TabAdapter extends FragmentStatePagerAdapter {
     private int numberTabs;
 
-    public TabAdapter(FragmentManager fm,int numberTabs) {
+    public static final int CURRENT_TASK_POSITION = 0;
+    public static final int DONE_TASK_POSITION = 1;
+
+    private currentTaskFragment currentTaskFragment;
+    private DoneTaskFragment doneTaskFragment;
+
+    public TabAdapter(FragmentManager fm, int numberTabs) {
         super(fm);
         this.numberTabs = numberTabs;
+        currentTaskFragment = new currentTaskFragment();
+        doneTaskFragment = new DoneTaskFragment();
     }
 
     @Override
-    public Fragment getItem(int position) {
+    public Fragment getItem(int i) {
 
-        switch (position){
+        switch (i) {
             case 0:
-                return new currentTaskFragment();
+                return currentTaskFragment;
             case 1:
-                return new DoneTaskFragment();
+                return doneTaskFragment;
             default:
                 return null;
         }
