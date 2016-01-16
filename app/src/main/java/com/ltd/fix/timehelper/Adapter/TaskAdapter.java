@@ -10,11 +10,12 @@ import com.ltd.fix.timehelper.Models.Item;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by fix on 16.01.16.
- */
+import de.hdodenhof.circleimageview.CircleImageView;
+
+
 public abstract class TaskAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     List<Item> items;
+
     TaskFragment taskFragment;
 
     public TaskAdapter(TaskFragment taskFragment) {
@@ -37,7 +38,7 @@ public abstract class TaskAdapter extends RecyclerView.Adapter<RecyclerView.View
     }
 
     public void removeItem(int location) {
-        if (location >= 0 && location <= getItemCount() - 1) {
+        if (location >= 0 && location <= getItemCount() -1) {
             items.remove(location);
             notifyItemRemoved(location);
         }
@@ -51,11 +52,13 @@ public abstract class TaskAdapter extends RecyclerView.Adapter<RecyclerView.View
     protected class TaskViewHolder extends RecyclerView.ViewHolder {
         protected TextView title;
         protected TextView date;
+        protected CircleImageView priority;
 
-        public TaskViewHolder(View itemView, TextView title, TextView date) {
+        public TaskViewHolder(View itemView, TextView title, TextView date, CircleImageView priority) {
             super(itemView);
             this.title = title;
             this.date = date;
+            this.priority = priority;
         }
     }
 

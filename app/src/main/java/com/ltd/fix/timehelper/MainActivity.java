@@ -14,22 +14,27 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.ltd.fix.timehelper.Adapter.TabAdapter;
+import com.ltd.fix.timehelper.Database.DBHelper;
 import com.ltd.fix.timehelper.Dialog.AddTaskDialogFragment;
+import com.ltd.fix.timehelper.Fragments.CurrentTaskFragment;
 import com.ltd.fix.timehelper.Fragments.DoneTaskFragment;
 import com.ltd.fix.timehelper.Fragments.SplashFragment;
-import com.ltd.fix.timehelper.Fragments.currentTaskFragment;
+import com.ltd.fix.timehelper.Fragments.TaskFragment;
 import com.ltd.fix.timehelper.Models.ModelTask;
 
 public class MainActivity extends AppCompatActivity
-        implements AddTaskDialogFragment.AddTaskListener {
+        implements AddTaskDialogFragment.AddTaskListener,
+        CurrentTaskFragment.OnTaskDoneListener, DoneTaskFragment.OnTaskRestoreListener {
 
     FragmentManager fragmentManager;
-    PreferenceHelper preferenceHelper;
 
+    PreferenceHelper preferenceHelper;
     TabAdapter tabAdapter;
 
-    currentTaskFragment currentTaskFragment;
-    DoneTaskFragment doneTaskFragment;
+    TaskFragment currentTaskFragment;
+    TaskFragment doneTaskFragment;
+
+    public DBHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,36 +44,43 @@ public class MainActivity extends AppCompatActivity
         PreferenceHelper.getInstance().init(getApplicationContext());
         preferenceHelper = PreferenceHelper.getInstance();
 
+        dbHelper = new DBHelper(getApplicationContext());
 
         fragmentManager = getFragmentManager();
 
         runSplash();
+
         setUI();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         MenuItem splashItem = menu.findItem(R.id.action_splash);
-        splashItem.setChecked(preferenceHelper.getBoolean(PreferenceHelper.SPLASH_INVISIBLE));
+        splashItem.setChecked(preferenceHelper.getBoolean(PreferenceHelper.SPLASH_IS_INVISIBLE));
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem menuItem) {
-        int id = menuItem.getItemId();
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
 
+        //noinspection SimplifiableIfStatement
         if (id == R.id.action_splash) {
-            menuItem.setChecked(!menuItem.isChecked());
-            preferenceHelper.putBoolean(PreferenceHelper.SPLASH_INVISIBLE, menuItem.isChecked());
+            item.setChecked(!item.isChecked());
+            preferenceHelper.putBoolean(PreferenceHelper.SPLASH_IS_INVISIBLE, item.isChecked());
             return true;
         }
 
-        return super.onOptionsItemSelected(menuItem);
+        return super.onOptionsItemSelected(item);
     }
 
     public void runSplash() {
-        if (!preferenceHelper.getBoolean(PreferenceHelper.SPLASH_INVISIBLE)) {
+        if(!preferenceHelper.getBoolean(PreferenceHelper.SPLASH_IS_INVISIBLE)) {
             SplashFragment splashFragment = new SplashFragment();
 
             fragmentManager.beginTransaction()
@@ -76,9 +88,11 @@ public class MainActivity extends AppCompatActivity
                     .addToBackStack(null)
                     .commit();
         }
+
     }
 
     private void setUI() {
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         if (toolbar != null) {
             toolbar.setTitleTextColor(getResources().getColor(R.color.white));
@@ -86,7 +100,7 @@ public class MainActivity extends AppCompatActivity
         }
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
-        tabLayout.addTab(tabLayout.newTab().setText(R.string.current_deal));
+        tabLayout.addTab(tabLayout.newTab().setText(R.string.current_task));
         tabLayout.addTab(tabLayout.newTab().setText(R.string.done));
 
         final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
@@ -110,28 +124,43 @@ public class MainActivity extends AppCompatActivity
             public void onTabReselected(TabLayout.Tab tab) {
 
             }
+
+
+
         });
 
-        currentTaskFragment = (currentTaskFragment) tabAdapter.getItem(TabAdapter.CURRENT_TASK_POSITION);
-        doneTaskFragment = (DoneTaskFragment) tabAdapter.getItem(TabAdapter.DONE_TASK_POSITION);
+        currentTaskFragment = (CurrentTaskFragment) tabAdapter.getItem(TabAdapter.CURRENT_TASK_FRAGMENT_POSITION);
+        doneTaskFragment = (DoneTaskFragment) tabAdapter.getItem(TabAdapter.DONE_TASK_FRAGMENT_POSITION);
+
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DialogFragment addTask = new AddTaskDialogFragment();
-                addTask.show(fragmentManager, "Add Task");
+                DialogFragment addingTaskDialogFragment = new AddTaskDialogFragment();
+                addingTaskDialogFragment.show(fragmentManager, "AddingTaskDialogFragment");
             }
         });
     }
 
     @Override
     public void onTaskAdded(ModelTask newTask) {
-        currentTaskFragment.addTask(newTask);
+        currentTaskFragment.addTask(newTask, true);
     }
 
     @Override
-    public void onTaskAddCancel() {
-        Toast.makeText(this, "Отмена события", Toast.LENGTH_SHORT).show();
+    public void onTaskAddingCancel() {
+        Toast.makeText(this, "Task adding cancel", Toast.LENGTH_LONG).show();
+
+    }
+
+    @Override
+    public void onTaskDone(ModelTask task) {
+        doneTaskFragment.addTask(task, false);
+    }
+
+    @Override
+    public void onTaskRestore(ModelTask task) {
+        currentTaskFragment.addTask(task, false);
     }
 }

@@ -2,15 +2,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Fragments.DoneTaskFragment">
+    tools:context="info.fandroid.reminder.fragment.DoneTaskFragment"
+    android:background="@color/spisok_normal">
 
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/rv_done_task"
+        android:id="@+id/rvDoneTasks"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scrollbars="vertical"
         android:clipToPadding="false"
-        android:paddingBottom="@dimen/padding_bottom"
-        android:layout_width="match_parent"/>
-
+        android:paddingBottom="88dp"/>
 </FrameLayout>

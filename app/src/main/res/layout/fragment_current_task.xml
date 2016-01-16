@@ -2,15 +2,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Fragments.currentTaskFragment">
+    tools:context="info.fandroid.reminder.fragment.CurrentTaskFragment"
+    android:background="@color/spisok_normal">
 
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/rv_current_task"
+        android:id="@+id/rvCurrentTasks"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scrollbars="vertical"
         android:clipToPadding="false"
-        android:paddingBottom="@dimen/padding_bottom"
-        android:layout_width="match_parent"/>
+        android:paddingBottom="88dp"/>
 
 </FrameLayout>

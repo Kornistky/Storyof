@@ -11,9 +11,12 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
@@ -26,53 +29,74 @@ import java.util.Calendar;
 
 public class AddTaskDialogFragment extends DialogFragment {
 
-    private AddTaskListener addTaskListener;
+    private AddTaskListener addingTaskListener;
 
-    public interface AddTaskListener{
-        void onTaskAdded(ModelTask newTaks);
-        void onTaskAddCancel();
+    public interface AddTaskListener {
+        void onTaskAdded(ModelTask newTask);
+        void onTaskAddingCancel();
     }
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
-            addTaskListener = (AddTaskListener) activity;
-        }catch (ClassCastException e){
-            throw new ClassCastException(activity.toString() + "must implement AddTaskListener");
+            addingTaskListener = (AddTaskListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement AddingTaskListener");
         }
     }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         builder.setTitle(R.string.title);
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        View container = inflater.inflate(R.layout.task_dialog, null);
 
-        final TextInputLayout title = (TextInputLayout) container.findViewById(R.id.Dialog_Task_Title);
-        final EditText etTitle = title.getEditText();
+        View container = inflater.inflate(R.layout.dialog_task, null);
 
-        final TextInputLayout date = (TextInputLayout) container.findViewById(R.id.Dialog_Task_Date);
-        final EditText etDate = date.getEditText();
+        final TextInputLayout tilTitle = (TextInputLayout) container.findViewById(R.id.DialogTaskTitle);
+        final EditText etTitle = tilTitle.getEditText();
 
-        TextInputLayout time = (TextInputLayout) container.findViewById(R.id.Dialog_Task_Time);
-        final EditText etTime = time.getEditText();
+        TextInputLayout tilDate = (TextInputLayout) container.findViewById(R.id.DialogTaskDate);
+        final EditText etDate = tilDate.getEditText();
 
-        title.setHint(getResources().getString(R.string.task_title));
-        date.setHint(getResources().getString(R.string.task_date));
-        time.setHint(getResources().getString(R.string.task_time));
+        final TextInputLayout tilTime = (TextInputLayout) container.findViewById(R.id.DialogTaskTime);
+        final EditText etTime = tilTime.getEditText();
+
+        Spinner spPriority = (Spinner) container.findViewById(R.id.spDialogTaskPriority);
+
+
+        tilTitle.setHint(getResources().getString(R.string.task_title));
+        tilDate.setHint(getResources().getString(R.string.task_date));
+        tilTime.setHint(getResources().getString(R.string.task_time));
 
         builder.setView(container);
 
         final ModelTask task = new ModelTask();
-        final Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, calendar.get(Calendar.HOUR_OF_DAY) +1);
 
+
+        ArrayAdapter<String> priorityAdapter = new ArrayAdapter<String>(getActivity(),
+                android.R.layout.simple_spinner_dropdown_item, ModelTask.PRIORITY_LEVELS);
+
+        spPriority.setAdapter(priorityAdapter);
+
+        spPriority.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                task.setPriority(position);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        final Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, calendar.get(Calendar.HOUR_OF_DAY) + 1);
 
         etDate.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -81,7 +105,7 @@ public class AddTaskDialogFragment extends DialogFragment {
                     etDate.setText(" ");
                 }
 
-                DialogFragment datePicker = new DatePickerFragment() {
+                DialogFragment datePickerFragment = new DatePickerFragment() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                         calendar.set(Calendar.YEAR, year);
@@ -95,10 +119,9 @@ public class AddTaskDialogFragment extends DialogFragment {
                         etDate.setText(null);
                     }
                 };
-                datePicker.show(getFragmentManager(), "DatePicker");
+                datePickerFragment.show(getFragmentManager(), "DatePickerFragment");
             }
         });
-
 
         etTime.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -106,16 +129,13 @@ public class AddTaskDialogFragment extends DialogFragment {
                 if (etTime.length() == 0) {
                     etTime.setText(" ");
                 }
-
-
-                DialogFragment timePicker = new TimePickerFragment() {
+                DialogFragment timePickerFragment = new TimePickerFragment() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                         calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
                         calendar.set(Calendar.MINUTE, minute);
                         calendar.set(Calendar.SECOND, 0);
                         etTime.setText(Utils.getTime(calendar.getTimeInMillis()));
-
                     }
 
                     @Override
@@ -123,11 +143,9 @@ public class AddTaskDialogFragment extends DialogFragment {
                         etTime.setText(null);
                     }
                 };
-
-                timePicker.show(getFragmentManager(),"TimePicker");
+                timePickerFragment.show(getFragmentManager(), "TimePickerFragment");
             }
         });
-
 
         builder.setPositiveButton(R.string.Accept, new DialogInterface.OnClickListener() {
             @Override
@@ -136,7 +154,8 @@ public class AddTaskDialogFragment extends DialogFragment {
                 if (etDate.length() != 0 || etTime.length() != 0) {
                     task.setDate(calendar.getTimeInMillis());
                 }
-                addTaskListener.onTaskAdded(task);
+                task.setStatus(ModelTask.STATUS_CURRENT);
+                addingTaskListener.onTaskAdded(task);
                 dialog.dismiss();
             }
         });
@@ -144,7 +163,7 @@ public class AddTaskDialogFragment extends DialogFragment {
         builder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                addTaskListener.onTaskAddCancel();
+                addingTaskListener.onTaskAddingCancel();
                 dialog.cancel();
             }
         });
@@ -153,10 +172,10 @@ public class AddTaskDialogFragment extends DialogFragment {
         alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialog) {
-                final Button positiveButoon = ((AlertDialog) dialog).getButton(DialogInterface.BUTTON_POSITIVE);
+                final Button positiveButton = ((AlertDialog) dialog).getButton(DialogInterface.BUTTON_POSITIVE);
                 if (etTitle.length() == 0) {
-                    positiveButoon.setEnabled(false);
-                    title.setError(getResources().getString(R.string.error));
+                    positiveButton.setEnabled(false);
+                    tilTitle.setError(getResources().getString(R.string.dialog_error_empty_title));
                 }
 
                 etTitle.addTextChangedListener(new TextWatcher() {
@@ -167,15 +186,13 @@ public class AddTaskDialogFragment extends DialogFragment {
 
                     @Override
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
-
                         if (s.length() == 0) {
-                            positiveButoon.setEnabled(false);
-                            title.setError(getResources().getString(R.string.error));
+                            positiveButton.setEnabled(false);
+                            tilTitle.setError(getResources().getString(R.string.dialog_error_empty_title));
                         } else {
-                            positiveButoon.setEnabled(true);
-                            title.setErrorEnabled(false);
+                            positiveButton.setEnabled(true);
+                            tilTitle.setErrorEnabled(false);
                         }
-
                     }
 
                     @Override
@@ -189,3 +206,4 @@ public class AddTaskDialogFragment extends DialogFragment {
         return alertDialog;
     }
 }
+
