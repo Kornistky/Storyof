@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.ltd.fix.timehelper.Fragments.TaskFragment;
 import com.ltd.fix.timehelper.Models.Item;
 import com.ltd.fix.timehelper.Models.ModelTask;
 import com.ltd.fix.timehelper.R;
@@ -19,26 +20,15 @@ import java.util.List;
 /**
  * Created by fix on 15.01.16.
  */
-public class CurrentTaskAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class CurrentTaskAdapter extends TaskAdapter {
 
-    List<Item> items = new ArrayList<>();
 
     private static final int TYPE_TASK = 0;
 
     private static final int TYPE_SEPARATOR = 1;
 
-    public Item getItem(int position) {
-        return items.get(position);
-    }
-
-    public void addItem(Item item) {
-        items.add(item);
-        notifyItemInserted(getItemCount() - 1);
-    }
-
-    public void addItem(int location, Item item) {
-        items.add(location, item);
-        notifyItemInserted(location);
+    public CurrentTaskAdapter(TaskFragment taskFragment) {
+        super(taskFragment);
     }
 
     @Override
@@ -61,22 +51,17 @@ public class CurrentTaskAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
         Item item = items.get(position);
 
-        if (item.isTask()){
+        if (item.isTask()) {
             viewHolder.itemView.setEnabled(true);
             ModelTask task = (ModelTask) item;
             TaskViewHolder taskViewHolder = (TaskViewHolder) viewHolder;
 
             taskViewHolder.title.setText(task.getTitle());
-            if (task.getDate() != 0){
+            if (task.getDate() != 0) {
                 taskViewHolder.date.setText(Utils.getAllDate(task.getDate()));
             }
         }
 
-    }
-
-    @Override
-    public int getItemCount() {
-        return items.size();
     }
 
     @Override
@@ -89,14 +74,5 @@ public class CurrentTaskAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }
     }
 
-    private class TaskViewHolder extends RecyclerView.ViewHolder {
-        protected TextView title;
-        protected TextView date;
-
-        public TaskViewHolder(View itemView, TextView title, TextView date) {
-            super(itemView);
-            this.title = title;
-            this.date = date;
-        }
-    }
+    
 }
