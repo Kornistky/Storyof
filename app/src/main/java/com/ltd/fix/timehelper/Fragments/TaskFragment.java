@@ -39,7 +39,7 @@ public abstract class TaskFragment extends Fragment {
     public void addTask(ModelTask newTask, boolean saveToDB) {
         int position = -1;
 
-        for (int i = 0; i < adapter.getItemCount(); i++) {
+        for (int i = 0; i < adapter.getItemCount(); i ++) {
             if (adapter.getItem(i).isTask()) {
                 ModelTask task = (ModelTask) adapter.getItem(i);
                 if (newTask.getDate() < task.getDate()) {
@@ -59,6 +59,7 @@ public abstract class TaskFragment extends Fragment {
             activity.dbHelper.saveTask(newTask);
         }
     }
+
 
     public void removeTaskDialog(final int location) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
@@ -85,11 +86,10 @@ public abstract class TaskFragment extends Fragment {
                     snackbar.setAction(R.string.Cancel, new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            addTask(activity.dbHelper.query().getTask(timeStamp),false);
+                            addTask(activity.dbHelper.query().getTask(timeStamp), false);
                             isRemoved[0] = false;
                         }
                     });
-
                     snackbar.getView().addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
                         @Override
                         public void onViewAttachedToWindow(View v) {
@@ -98,16 +98,17 @@ public abstract class TaskFragment extends Fragment {
 
                         @Override
                         public void onViewDetachedFromWindow(View v) {
-                            if (isRemoved[0]){
+                            if (isRemoved[0]) {
                                 activity.dbHelper.removeTask(timeStamp);
                             }
                         }
                     });
 
-
                     snackbar.show();
 
+
                     dialog.dismiss();
+
                 }
             });
 
@@ -117,10 +118,13 @@ public abstract class TaskFragment extends Fragment {
                     dialog.cancel();
                 }
             });
+
         }
 
         dialogBuilder.show();
     }
+
+    public abstract void findTasks(String title);
 
     public abstract void addTaskFromDB();
 

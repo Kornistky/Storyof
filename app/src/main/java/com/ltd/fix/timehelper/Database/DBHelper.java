@@ -8,9 +8,7 @@ import android.provider.BaseColumns;
 
 import com.ltd.fix.timehelper.Models.ModelTask;
 
-/**
- * Created by fix on 16.01.16.
- */
+
 public class DBHelper extends SQLiteOpenHelper {
 
     public static final int DATABASE_VERSION = 1;
@@ -34,6 +32,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public static final String SELECTION_STATUS = DBHelper.TASK_STATUS_COLUMN + " = ?";
     public static final String SELECTION_TIME_STAMP = TASK_TIME_STAMP_COLUMN + " = ?";
+    public static final String SELECTION_LIKE_TITLE = TASK_TITLE_COLUMN + " LIKE ?";
 
     private DBQueryManager queryManager;
     private DBUpdateManager updateManager;

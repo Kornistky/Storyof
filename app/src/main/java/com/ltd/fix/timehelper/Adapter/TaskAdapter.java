@@ -38,9 +38,16 @@ public abstract class TaskAdapter extends RecyclerView.Adapter<RecyclerView.View
     }
 
     public void removeItem(int location) {
-        if (location >= 0 && location <= getItemCount() -1) {
+        if (location >= 0 && location <= getItemCount() - 1) {
             items.remove(location);
             notifyItemRemoved(location);
+        }
+    }
+
+    public void removeAllItems() {
+        if (getItemCount() != 0 ){
+            items = new ArrayList<>();
+            notifyDataSetChanged();
         }
     }
 
