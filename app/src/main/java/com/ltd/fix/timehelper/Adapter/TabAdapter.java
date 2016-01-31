@@ -7,9 +7,7 @@ import android.support.v13.app.FragmentStatePagerAdapter;
 import com.ltd.fix.timehelper.Fragments.CurrentTaskFragment;
 import com.ltd.fix.timehelper.Fragments.DoneTaskFragment;
 
-/**
- * Created by fix on 14.01.16.
- */
+
 public class TabAdapter extends FragmentStatePagerAdapter {
 
     private int numberOfTabs;
@@ -20,7 +18,7 @@ public class TabAdapter extends FragmentStatePagerAdapter {
     private CurrentTaskFragment currentTaskFragment;
     private DoneTaskFragment doneTaskFragment;
 
-    public TabAdapter(FragmentManager fm, int numberOfTabs) {
+    public TabAdapter(FragmentManager fm, int а) {
         super(fm);
         this.numberOfTabs = numberOfTabs;
         currentTaskFragment = new CurrentTaskFragment();
